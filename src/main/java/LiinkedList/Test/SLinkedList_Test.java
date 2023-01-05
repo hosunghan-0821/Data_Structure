@@ -1,4 +1,6 @@
-package LiinkedList;
+package LiinkedList.Test;
+
+import LiinkedList.SLinkedList;
 
 public class SLinkedList_Test {
 
