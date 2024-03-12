@@ -4,11 +4,12 @@ import Interface_Form.List;
 
 import java.util.NoSuchElementException;
 
-public class SLinkedList<E> implements List<E>,Cloneable {
+public class SLinkedList<E> implements List<E>, Cloneable {
 
-    private sNode<E> head;
-    private sNode<E> tail;
-    private int size;
+    private sNode<E> head; //노드의 첫 부분
+    private sNode<E> tail; //노드의 마지막 부분
+    private int size; // 요소개수
+
 
     public SLinkedList() {
         this.head = null;
@@ -16,31 +17,11 @@ public class SLinkedList<E> implements List<E>,Cloneable {
         this.size = 0;
     }
 
-
-
-
-    private sNode<E> search(int index) {
-        if (index < 0 || index >= size) {
-            throw new IndexOutOfBoundsException();
-        }
-        sNode<E> x = head;
-        for (int i = 0; i < index; i++) {
-            x = x.next;
-        }
-        return x;
-    }
-
     public void addFirst(E value) {
-        sNode<E> newSNode = new sNode<E>(value); //새 노드 생성
-        newSNode.next = head; // 새 노드의 다음 노드로 head 노드를 연결
-        head = newSNode; //head가 가리키는 노드를 새 노드 변경
+        sNode<E> newNode = new sNode<E>(value);
+        newNode.next = head;
+        head = newNode;
         size++;
-
-        /*
-         * 다음에 가리킬 노드가 없는 경우
-         * 데이터가 한 개 밖에 없으므로, 새 노드는 처음 시작노드이다, 마지막 노드
-         * tail = head 이다.
-         * */
 
         if (head.next == null) {
             tail = head;
@@ -48,35 +29,32 @@ public class SLinkedList<E> implements List<E>,Cloneable {
     }
 
     public void addLast(E value) {
-        sNode<E> newSNode = new sNode<E>(value);
 
-        if (size == 0) { //첫 노드일 경우, addFirst 로 추가
+        sNode<E> newNode = new sNode<E>(value);
+
+        if (size == 0) {
             addFirst(value);
             return;
         }
 
-        /*
-         * 마지막 노드 tail 의 다음 노드가 새노드를 가리키도록 하고
-         * tail 이 가리키는 노드를 새 노드로 바꿔준다
-         * */
-        tail.next = newSNode;
-        tail = newSNode;
+        tail.next = newNode;
+        tail = newNode;
         size++;
+
 
     }
 
     @Override
     public boolean add(E value) {
         addLast(value);
-        return false;
+        return true;
     }
 
     @Override
     public void add(int index, E value) {
-        if (index < 0 || index >= size) {
+        if (index > size || index < 0) {
             throw new IndexOutOfBoundsException();
         }
-
         if (index == 0) {
             addFirst(value);
             return;
@@ -86,100 +64,103 @@ public class SLinkedList<E> implements List<E>,Cloneable {
             return;
         }
 
-        sNode<E> newSNode = new sNode<>(value);
-        sNode<E> prevSNode = search(index - 1);
-        sNode<E> nextSNode = prevSNode.next;
-        prevSNode.next = newSNode;
-        newSNode.next = nextSNode;
+        sNode<E> newNode = new sNode<E>(value);
+        sNode<E> prevNode = search(index - 1);
+        newNode.next = prevNode.next;
+        prevNode.next = newNode;
         size++;
+
+
     }
 
+    /*가장 앞에 있는 요소를 제거하는 메소드*/
 
     public E remove() {
+        sNode<E> headNode = head;
 
-        sNode<E> headSNode = head;
-        if (headSNode == null) throw new NoSuchElementException();
+        if (headNode == null) {
+            throw new NoSuchElementException();
+        }
 
-        //삭제된 노드를 반환하기 위한 임시 변수
-        E element = headSNode.data;
-        sNode<E> nextSNode = head.next;
+        E element = headNode.data;
 
-        //head 노드의 데이터들을 모두 삭제
+        sNode<E> nextNode = head.next;
+
         head.data = null;
         head.next = null;
 
-        //head가 다음 노드를 가리키도록 업데이트
-        head = nextSNode;
+        head = nextNode;
         size--;
 
-        /*
-         *  삭제된 요소가 리스트의 유일한 요소였을 경우
-         * 그 요소는 head 이자 tail 이었으므로
-         * 삭제되면서 tail 도 null 처리 해야함
-         * */
         if (size == 0) {
             tail = null;
         }
+
         return element;
     }
 
     @Override
     public E remove(int index) {
 
-        if (index < 0 || index >= size) {
+        if (index == 0) {
+            return remove();
+        }
+
+        if (index >= size || index < 0) {
             throw new IndexOutOfBoundsException();
         }
 
-        if (index == 0) {
+        sNode<E> prevNode = search(index - 1);
+        sNode<E> removeNode = prevNode.next;
+        sNode<E> nextNode = removeNode.next;
 
-            return remove();
-        }
-        sNode<E> prevSNode = search(index - 1);
-        sNode<E> removeSNode = prevSNode.next;
-        sNode<E> nextSNode = removeSNode.next;
-        E element = removeSNode.data;
-        prevSNode.next = nextSNode;
+        E element = removeNode.data;
 
-        if (prevSNode.next == null) {
-            tail = prevSNode;
+        prevNode.next = nextNode;
+
+        if (prevNode.next == null) {
+            tail = prevNode;
         }
 
-        removeSNode.next = null;
-        removeSNode.data = null;
+        removeNode.next = null;
+        removeNode.data = null;
         size--;
-
         return element;
+
     }
 
     @Override
     public boolean remove(Object value) {
 
-        sNode<E> prevSNode = head;
+        sNode<E> prevNode = head;
         boolean hasValue = false;
-        sNode<E> x = head; // removedNode
+        sNode<E> x = head;
 
+        //value 와 일치하는 노드를 찾느낟.
         for (; x != null; x = x.next) {
 
             if (value.equals(x.data)) {
                 hasValue = true;
                 break;
             }
-            prevSNode = x;
+            prevNode = x;
         }
 
-        //일치요소 없을 경우
+        // 일치하는 요소가 없을 경우 false 반환
         if (x == null) {
             return false;
         }
+
         if (x.equals(head)) {
             remove();
             return true;
         } else {
-            prevSNode.next = x.next;
+            prevNode.next = x.next;
 
-            if (prevSNode.next == null) {
-                tail = prevSNode;
+            if (prevNode.next == null) {
+                tail = prevNode;
             }
+
             x.data = null;
             x.next = null;
             size--;
@@ -194,9 +175,8 @@ public class SLinkedList<E> implements List<E>,Cloneable {
 
     @Override
     public void set(int index, E value) {
-        sNode<E> replaceSNode = search(index);
-        replaceSNode.data = null;
-        replaceSNode.data = value;
+        sNode<E> replaceNode = search(index);
+        replaceNode.data = value;
     }
 
     @Override
@@ -218,40 +198,50 @@ public class SLinkedList<E> implements List<E>,Cloneable {
 
     @Override
     public int size() {
-        return size;
+        return this.size;
     }
 
     @Override
     public boolean isEmpty() {
-        return size == 0;
+        return this.size == 0;
     }
 
     @Override
     public void clear() {
-
         for (sNode<E> x = head; x != null; ) {
-            sNode<E> nextSNode = x.next;
+            sNode<E> nextNode = x.next;
             x.data = null;
             x.next = null;
-            x = nextSNode;
+            x = nextNode;
+
         }
         head = tail = null;
         size = 0;
     }
 
+    private sNode<E> search(int index) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException();
+        }
+        sNode<E> x = head;
+        for (int i = 0; i < index; i++) {
+            x = x.next;
+        }
+        return x;
+    }
 
-
-    public Object clone() throws CloneNotSupportedException{
+    public Object clone() throws CloneNotSupportedException {
 
         @SuppressWarnings("unchecked")
-        SLinkedList<? super E> clone =(SLinkedList<? super E>)  super.clone();
-        clone.head=null;
-        clone.tail=null;
-        clone.size=0;
+        SLinkedList<? super E> clone = (SLinkedList<? super E>) super.clone();
+        clone.head = null;
+        clone.tail = null;
+        clone.size = 0;
 
-        for(sNode<E> x = head; x != null ; x=x.next){
+        for (sNode<E> x = head; x != null; x = x.next) {
             clone.addLast(x.data);
         }
         return clone;
     }
+
 }
