@@ -2,11 +2,11 @@ package LiinkedList;
 
 public class dNode <E>{
 
-    E data;
-    dNode<E> next;
-    dNode<E> prev;
+    public E data;
+    public dNode<E> next;
+    public dNode<E> prev;
 
-    dNode(E data){
+    public dNode(E data){
         this.data=data;
         this.prev=null;
         this.next=null;
