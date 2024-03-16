@@ -1,10 +1,10 @@
 package queue;
 
 public class sNode<E> {
-    E data;
-    sNode<E> next;
+    public E data;
+    public sNode<E> next;
 
-    sNode(E data) {
+    public sNode(E data) {
         this.data = data;
         this.next = null;
     }
